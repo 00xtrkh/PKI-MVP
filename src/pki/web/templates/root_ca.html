@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Root CA | MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Root CA</h1>
+  <p class="lede">Self-signed trust anchor. Created automatically on first run if missing.</p>
+
+  <dl class="detail-list">
+    <div><dt>Subject</dt><dd><code>{{ subject }}</code></dd></div>
+    <div><dt>Issuer</dt><dd><code>{{ issuer }}</code></dd></div>
+    <div><dt>Serial</dt><dd><code>{{ serial }}</code></dd></div>
+    <div><dt>Not before</dt><dd>{{ not_before }}</dd></div>
+    <div><dt>Not after</dt><dd>{{ not_after }}</dd></div>
+  </dl>
+
+  <h2>Certificate PEM</h2>
+  <pre class="pem">{{ pem }}</pre>
+</section>
+{% endblock %}

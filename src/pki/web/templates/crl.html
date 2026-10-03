@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}CRL | MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Certificate Revocation List</h1>
+  <p class="lede">Current CRL entries signed by the Root CA.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Serial</th>
+        <th>Revocation date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr>
+        <td><code>{{ entry.serial_number }}</code></td>
+        <td>{{ entry.revocation_date }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="2">CRL is empty. No revocations yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Certificates | MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Certificates</h1>
+  <p class="lede">Issued end-entity certificates. Only an admin can revoke.</p>
+
+  {% if is_admin %}
+  <form method="post" class="panel inline-panel">
+    <input type="hidden" name="action" value="revoke_cn">
+    <label>
+      Revoke by CN
+      <input type="text" name="common_name" required placeholder="Alice">
+    </label>
+    <button type="submit" class="btn btn-danger">Revoke</button>
+  </form>
+  {% else %}
+  <p class="note"><a href="{{ url_for('ui.login', next=url_for('ui.certificates_page')) }}">Admin login</a> required to revoke.</p>
+  {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>CN</th>
+        <th>Serial</th>
+        <th>Valid from</th>
+        <th>Valid to</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cert in certificates %}
+      <tr>
+        <td>{{ cert.common_name }}</td>
+        <td><code>{{ cert.serial }}</code></td>
+        <td>{{ cert.not_before }}</td>
+        <td>{{ cert.not_after }}</td>
+        <td>
+          {% if cert.is_revoked %}
+          <span class="status status-revoked">revoked</span>
+          {% else %}
+          <span class="status status-active">active</span>
+          {% endif %}
+        </td>
+        <td class="row-actions">
+          <a href="{{ url_for('ui.certificate_pem', serial=cert.serial) }}">PEM</a>
+          {% if not cert.is_revoked and is_admin %}
+          <form method="post" class="inline-form">
+            <input type="hidden" name="action" value="revoke_serial">
+            <input type="hidden" name="serial" value="{{ cert.serial }}">
+            <button type="submit" class="btn btn-small btn-danger">Revoke</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No certificates issued yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

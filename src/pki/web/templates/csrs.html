@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}CSRs | MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Certificate Signing Requests</h1>
+  <p class="lede">
+    Build the key and CSR on your machine with OpenSSL. Upload only the CSR.
+    Never upload your private key. Issuing is admin-only.
+  </p>
+
+  <aside class="callout warn">
+    <strong>Create a CSR with OpenSSL</strong>
+    <ol class="howto-steps">
+      <li>Replace <code>Alice</code> with your Common Name.</li>
+      <li>Keep <code>alice.key</code> on your machine only.</li>
+      <li>Upload <code>alice.csr</code> (or paste the PEM below).</li>
+    </ol>
+    <pre class="pem">openssl genrsa -out alice.key {{ client_key_size }}
+
+openssl req -new -key alice.key -out alice.csr \
+  -subj "/C={{ ca_country }}/O={{ client_organization }}/CN=Alice"
+
+openssl req -in alice.csr -noout -text -verify</pre>
+  </aside>
+
+  <form method="post" enctype="multipart/form-data" class="panel">
+    <h2>Upload CSR</h2>
+    <input type="hidden" name="action" value="upload">
+    <label>
+      CSR file
+      <input type="file" name="csr_file" accept=".pem,.csr,.txt">
+    </label>
+    <label>
+      Or paste PEM
+      <textarea name="csr_pem" rows="6" placeholder="-----BEGIN CERTIFICATE REQUEST-----"></textarea>
+    </label>
+    <button type="submit" class="btn">Submit CSR</button>
+  </form>
+
+  <h2>CSR list</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>CN</th>
+        <th>Status</th>
+        <th>Issued serial</th>
+        <th>Created</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for csr in csrs %}
+      <tr>
+        <td>{{ csr.id }}</td>
+        <td>{{ csr.common_name }}</td>
+        <td><span class="status status-{{ csr.status }}">{{ csr.status }}</span></td>
+        <td><code>{{ csr.issued_serial or "-" }}</code></td>
+        <td>{{ csr.created_at }}</td>
+        <td>
+          {% if csr.status == "pending" %}
+            {% if is_admin %}
+            <form method="post" class="inline-form">
+              <input type="hidden" name="action" value="issue">
+              <input type="hidden" name="csr_id" value="{{ csr.id }}">
+              <label class="check">
+                <input type="checkbox" name="force"> force
+              </label>
+              <button type="submit" class="btn btn-small">Issue</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('ui.login', next=url_for('ui.csrs_page')) }}">Admin login to issue</a>
+            {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No CSRs yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

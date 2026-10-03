@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <p class="hero-brand">MiniPKI</p>
+  <p class="lede">
+    Small X.509 lab CA. Upload a CSR you made locally, ask an admin to issue,
+    then validate anytime.
+  </p>
+
+  <dl class="stats">
+    <div>
+      <dt>Root CA</dt>
+      <dd>{{ root.certificate.subject.rfc4514_string() }}</dd>
+    </div>
+    <div>
+      <dt>Certificates</dt>
+      <dd>{{ cert_count }}</dd>
+    </div>
+    <div>
+      <dt>Pending CSRs</dt>
+      <dd>{{ pending_count }}</dd>
+    </div>
+    <div>
+      <dt>Revoked</dt>
+      <dd>{{ revoked_count }}</dd>
+    </div>
+  </dl>
+
+  <p class="actions">
+    <a class="btn" href="{{ url_for('ui.csrs_page') }}">Upload a CSR</a>
+    <a class="btn btn-secondary" href="{{ url_for('ui.validate_page') }}">Validate</a>
+  </p>
+</section>
+{% endblock %}

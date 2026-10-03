@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Validate | MiniPKI{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Validate certificate</h1>
+  <p class="lede">Checks signature against the Root CA, validity window, and CRL.</p>
+
+  <form method="post" enctype="multipart/form-data" class="panel">
+    <label>
+      Serial (from database)
+      <input type="text" name="serial" placeholder="1234567890">
+    </label>
+    <label>
+      Or PEM file
+      <input type="file" name="pem_file" accept=".pem,.crt,.cer">
+    </label>
+    <label>
+      Or paste PEM
+      <textarea name="pem" rows="8" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+    </label>
+    <button type="submit" class="btn">Validate</button>
+  </form>
+
+  {% if result %}
+  <aside class="callout {% if result.status.value == 'VALID' %}ok{% else %}warn{% endif %}">
+    <strong>{{ result.status.value }}</strong>
+    <p>{{ result.message }}</p>
+  </aside>
+  {% endif %}
+</section>
+{% endblock %}
